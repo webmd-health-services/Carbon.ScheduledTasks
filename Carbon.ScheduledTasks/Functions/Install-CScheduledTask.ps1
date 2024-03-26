@@ -6,11 +6,17 @@ function Install-CScheduledTask
     Installs a scheduled task on the current computer.
 
     .DESCRIPTION
-    The `Install-CScheduledTask` function uses `schtasks.exe` to install a scheduled task on the current computer. If a task with the same name already exists, the existing task is left in place. Use the `-Force` switch to force `Install-CScheduledTask` to delete any existing tasks before installation.
+    The `Install-CScheduledTask` function uses `schtasks.exe` to install a scheduled task on the current computer. If a
+    task with the same name already exists, the existing task is left in place. Use the `-Force` switch to force
+    `Install-CScheduledTask` to delete any existing tasks before installation.
 
     If a new task is created, a `[Carbon_ScheduledTasks_TaskInfo]` object is returned.
 
-    The `schtasks.exe` command line application is pretty limited in the kind of tasks it will create. If you need a scheduled task created with options not supported by `Install-CScheduledTask`, you can create an XML file using the [Task Scheduler Schema](http://msdn.microsoft.com/en-us/library/windows/desktop/aa383609.aspx) or create a task with the Task Scheduler MMC then export that task as XML with the `schtasks.exe /query /xml /tn <TaskName>`. Pass the XML file (or the raw XML) with the `TaskXmlFilePath` or `TaskXml` parameters, respectively.
+    The `schtasks.exe` command line application is pretty limited in the kind of tasks it will create. If you need a
+    scheduled task created with options not supported by `Install-CScheduledTask`, you can create an XML file using the
+    [Task Scheduler Schema](http://msdn.microsoft.com/en-us/library/windows/desktop/aa383609.aspx) or create a task with
+    the Task Scheduler MMC then export that task as XML with the `schtasks.exe /query /xml /tn <TaskName>`. Pass the XML
+    file (or the raw XML) with the `TaskXmlFilePath` or `TaskXml` parameters, respectively.
 
     .LINK
     Get-CScheduledTask
@@ -30,7 +36,8 @@ function Install-CScheduledTask
     .EXAMPLE
     Install-CScheduledTask -Name 'CarbonSample' -TaskToRun 'C:\Windows\system32\notepad.exe' -Minute 5
 
-    Creates a scheduled task "CarbonSample" to run notepad.exe every five minutes. No credential or principal is provided, so the task will run as `System`.
+    Creates a scheduled task "CarbonSample" to run notepad.exe every five minutes. No credential or principal is
+    provided, so the task will run as `System`.
 
     .EXAMPLE
     Install-CScheduledTask -Name 'CarbonSample' -TaskToRun 'C:\Windows\system32\notepad.exe' -Minute 1 -TaskCredential (Get-Credential 'runasuser')
@@ -45,7 +52,8 @@ function Install-CScheduledTask
     .EXAMPLE
     Install-CScheduledTask -Name 'CarbonSample' -TaskToRun 'calc.exe' -Minute 5 -StartTime '12:00' -EndTime '14:00' -StartDate '6/6/2006' -EndDate '6/6/2006'
 
-    Demonstrates how to run a task every 5 minutes between the given start date/time and end date/time. In this case, the task will run between noon and 2 pm on `6/6/2006`.
+    Demonstrates how to run a task every 5 minutes between the given start date/time and end date/time. In this case,
+    the task will run between noon and 2 pm on `6/6/2006`.
 
     .EXAMPLE
     Install-CScheduledTask -Name 'CarbonSample' -TaskToRun 'notepad' -Hourly 1
@@ -75,12 +83,14 @@ function Install-CScheduledTask
     .EXAMPLE
     Install-CScheduledTask -Name 'CarbonSample' -TaskToRun 'notepad.exe' -WeekOfMonth First -DayOfWeek Sunday
 
-    Demonstrates how to run a task on a specific week of each month. In this case, the task will run the first Sunday of every month.
+    Demonstrates how to run a task on a specific week of each month. In this case, the task will run the first Sunday of
+    every month.
 
     .EXAMPLE
     Install-CScheduledTask -Name 'CarbonSample' -TaskToRun 'notepad.exe' -Month 1,5,9 -WeekOfMonth First -DayOfWeek Sunday
 
-    Demonstrates how to run a task on a specific week of specific months. In this case, the task will run the first Sunday of January, May, and September.
+    Demonstrates how to run a task on a specific week of specific months. In this case, the task will run the first
+    Sunday of January, May, and September.
 
     .EXAMPLE
     Install-CScheduledTask -Name 'CarbonSample' -TaskToRun 'notepad.exe' -LastDayOfMonth
@@ -90,12 +100,14 @@ function Install-CScheduledTask
     .EXAMPLE
     Install-CScheduledTask -Name 'CarbonSample' -TaskToRun 'notepad.exe' -LastDayOfMonth -Month 1,6
 
-    Demonstrates how to run a task the last day of specific months. In this case, the task will run the last day of January and June.
+    Demonstrates how to run a task the last day of specific months. In this case, the task will run the last day of
+    January and June.
 
     .EXAMPLE
     Install-CScheduledTask -Name 'CarbonSample' -TaskToRun 'notepad.exe' -Once -StartTime '0:00'
 
-    Demonstrates how to run a task once. In this case, the task will run at midnight of today (which means it probably won't run since it is always past midnight).
+    Demonstrates how to run a task once. In this case, the task will run at midnight of today (which means it probably
+    won't run since it is always past midnight).
 
     .EXAMPLE
     Install-CScheduledTask -Name 'CarbonSample' -TaskToRun 'notepad.exe' -OnStart
@@ -105,17 +117,20 @@ function Install-CScheduledTask
     .EXAMPLE
     Install-CScheduledTask -Name 'CarbonSample' -TaskToRun 'notepad.exe' -OnStart -Delay '0:30'
 
-    Demonstrates how to run a task when the computer starts up after a certain amount of time passes. In this case, the task will run 30 minutes after the computer starts.
+    Demonstrates how to run a task when the computer starts up after a certain amount of time passes. In this case, the
+    task will run 30 minutes after the computer starts.
 
     .EXAMPLE
     Install-CScheduledTask -Name 'CarbonSample' -TaskToRun 'notepad.exe' -OnLogon -TaskCredential (Get-Credential 'runasuser')
 
-    Demonstrates how to run a task when the user running the task logs on. Usually you want to pass a credential when setting up a logon task, since the built-in users never log in.
+    Demonstrates how to run a task when the user running the task logs on. Usually you want to pass a credential when
+    setting up a logon task, since the built-in users never log in.
 
     .EXAMPLE
     Install-CScheduledTask -Name 'CarbonSample' -TaskToRun 'notepad.exe' -OnLogon -Delay '1:45' -TaskCredential (Get-Credential 'runasuser')
 
-    Demonstrates how to run a task after a certain amount of time passes after a user logs in. In this case, the task will run after 1 hour and 45 minutes after `runasuser` logs in.
+    Demonstrates how to run a task after a certain amount of time passes after a user logs in. In this case, the task
+    will run after 1 hour and 45 minutes after `runasuser` logs in.
 
     .EXAMPLE
     Install-CScheduledTask -Name 'CarbonSample' -TaskToRun 'notepad.exe' -OnIdle
@@ -125,32 +140,43 @@ function Install-CScheduledTask
     .EXAMPLE
     Install-CScheduledTask -Name 'CarbonSample' -TaskToRun 'notepad.exe' -OnIdle -Delay '0:05'
 
-    Demonstrates how to run a task when the computer has been idle for a desired amount of time. In this case, the task will run after the computer has been idle for 5 minutes.
+    Demonstrates how to run a task when the computer has been idle for a desired amount of time. In this case, the task
+    will run after the computer has been idle for 5 minutes.
 
     .EXAMPLE
     Install-CScheduledTask -Name 'CarbonSample' -TaskToRun 'wevtvwr.msc' -OnEvent -EventChannelName System -EventXPathQuery '*[Sytem/EventID=101]'
 
-    Demonstrates how to run an event when certain events are written to the event log. In this case, wevtvwr.msc will run whenever an event with ID `101` is published in the System event channel.
+    Demonstrates how to run an event when certain events are written to the event log. In this case, wevtvwr.msc will
+    run whenever an event with ID `101` is published in the System event channel.
 
     .EXAMPLE
     Install-CScheduledTask -Name 'CarbonSample' -TaskToRun 'notepad.exe' -TaskXmlFilePath $taskXmlPath
 
-    Demonstrates how to create a task using the [Task Scheduler XML schema](http://msdn.microsoft.com/en-us/library/windows/desktop/aa383609.aspx) for a task that runs as a built-in principal. You can export task XML with the `schtasks /query /xml /tn <Name>` command.
+    Demonstrates how to create a task using the [Task Scheduler XML
+    schema](http://msdn.microsoft.com/en-us/library/windows/desktop/aa383609.aspx) for a task that runs as a built-in
+    principal. You can export task XML with the `schtasks /query /xml /tn <Name>` command.
 
     .EXAMPLE
     Install-CScheduledTask -Name 'CarbonSample' -TaskToRun 'notepad.exe' -TaskXmlFilePath $taskXmlPath -TaskCredential (Get-Credential 'runasuser')
 
-    Demonstrates how to create a task using the [Task Scheduler XML schema](http://msdn.microsoft.com/en-us/library/windows/desktop/aa383609.aspx) for a task that will run as a specific user. The username in the XML file should match the username in the credential.
+    Demonstrates how to create a task using the [Task Scheduler XML
+    schema](http://msdn.microsoft.com/en-us/library/windows/desktop/aa383609.aspx) for a task that will run as a
+    specific user. The username in the XML file should match the username in the credential.
 
     .EXAMPLE
     Install-CScheduledTask -Name 'CarbonSample' -TaskToRun 'notepad.exe' -TaskXml $taskXml
 
-    Demonstrates how to create a task using raw XML that conforms to the [Task Scheduler XML schema](http://msdn.microsoft.com/en-us/library/windows/desktop/aa383609.aspx) for a task that will run as a built-in principal. In this case, `$taskXml` should be an XML document.
+    Demonstrates how to create a task using raw XML that conforms to the [Task Scheduler XML
+    schema](http://msdn.microsoft.com/en-us/library/windows/desktop/aa383609.aspx) for a task that will run as a
+    built-in principal. In this case, `$taskXml` should be an XML document.
 
     .EXAMPLE
     Install-CScheduledTask -Name 'CarbonSample' -TaskToRun 'notepad.exe' -TaskXml $taskXml -TaskCredential (Get-Credential 'runasuser')
 
-    Demonstrates how to create a task using raw XML that conforms to the [Task Scheduler XML schema](http://msdn.microsoft.com/en-us/library/windows/desktop/aa383609.aspx) for a task that will run as a specific user. In this case, `$taskXml` should be an XML document.  The username in the XML document should match the username in the credential.
+    Demonstrates how to create a task using raw XML that conforms to the [Task Scheduler XML
+    schema](http://msdn.microsoft.com/en-us/library/windows/desktop/aa383609.aspx) for a task that will run as a
+    specific user. In this case, `$taskXml` should be an XML document.  The username in the XML document should match
+    the username in the credential.
 
     .EXAMPLE
     Install-CScheduledTask -Name 'CarbonTasks\CarbonSample' -TaskToRun 'notepad.exe' -Monthly
@@ -159,142 +185,121 @@ function Install-CScheduledTask
     #>
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        # The name of the scheduled task to create. Paths are allowed to create tasks under folders.
+        [Parameter(Mandatory)]
         [ValidateLength(1,238)]
         [Alias('TaskName')]
-        [string]
-        # The name of the scheduled task to create. Paths are allowed to create tasks under folders.
-        $Name,
+        [String] $Name,
 
-        [Parameter(Mandatory=$true,ParameterSetName='Minute')]
-        [Parameter(Mandatory=$true,ParameterSetName='Hourly')]
-        [Parameter(Mandatory=$true,ParameterSetName='Daily')]
-        [Parameter(Mandatory=$true,ParameterSetName='Weekly')]
-        [Parameter(Mandatory=$true,ParameterSetName='Monthly')]
-        [Parameter(Mandatory=$true,ParameterSetName='Month')]
-        [Parameter(Mandatory=$true,ParameterSetName='LastDayOfMonth')]
-        [Parameter(Mandatory=$true,ParameterSetName='WeekOfMonth')]
-        [Parameter(Mandatory=$true,ParameterSetName='Once')]
-        [Parameter(Mandatory=$true,ParameterSetName='OnStart')]
-        [Parameter(Mandatory=$true,ParameterSetName='OnLogon')]
-        [Parameter(Mandatory=$true,ParameterSetName='OnIdle')]
-        [Parameter(Mandatory=$true,ParameterSetName='OnEvent')]
-        [ValidateLength(1,262)]
-        [string]
         # The task/program to execute, including arguments/parameters.
-        $TaskToRun,
+        [Parameter(Mandatory,ParameterSetName='Minute')]
+        [Parameter(Mandatory,ParameterSetName='Hourly')]
+        [Parameter(Mandatory,ParameterSetName='Daily')]
+        [Parameter(Mandatory,ParameterSetName='Weekly')]
+        [Parameter(Mandatory,ParameterSetName='Monthly')]
+        [Parameter(Mandatory,ParameterSetName='Month')]
+        [Parameter(Mandatory,ParameterSetName='LastDayOfMonth')]
+        [Parameter(Mandatory,ParameterSetName='WeekOfMonth')]
+        [Parameter(Mandatory,ParameterSetName='Once')]
+        [Parameter(Mandatory,ParameterSetName='OnStart')]
+        [Parameter(Mandatory,ParameterSetName='OnLogon')]
+        [Parameter(Mandatory,ParameterSetName='OnIdle')]
+        [Parameter(Mandatory,ParameterSetName='OnEvent')]
+        [ValidateLength(1,262)]
+        [String] $TaskToRun,
 
-        [Parameter(ParameterSetName='Minute',Mandatory=$true)]
-        [ValidateRange(1,1439)]
-        [int]
         # Create a scheduled task that runs every N minutes.
-        $Minute,
+        [Parameter(ParameterSetName='Minute',Mandatory)]
+        [ValidateRange(1,1439)]
+        [int] $Minute,
 
-        [Parameter(ParameterSetName='Hourly',Mandatory=$true)]
-        [ValidateRange(1,23)]
-        [int]
         # Create a scheduled task that runs every N hours.
-        $Hourly,
+        [Parameter(ParameterSetName='Hourly',Mandatory)]
+        [ValidateRange(1,23)]
+        [int] $Hourly,
 
+        # Stops the task at the `EndTime` or `Duration` if it is still running.
         [Parameter(ParameterSetName='Minute')]
         [Parameter(ParameterSetName='Hourly')]
-        [Switch]
-        # Stops the task at the `EndTime` or `Duration` if it is still running.
-        $StopAtEnd,
+        [switch] $StopAtEnd,
 
-        [Parameter(ParameterSetName='Daily',Mandatory=$true)]
-        [ValidateRange(1,365)]
-        [int]
         # Creates a scheduled task that runs every N days.
-        $Daily,
+        [Parameter(ParameterSetName='Daily',Mandatory)]
+        [ValidateRange(1,365)]
+        [int] $Daily,
 
-        [Parameter(ParameterSetName='Weekly',Mandatory=$true)]
-        [ValidateRange(1,52)]
-        [int]
         # Creates a scheduled task that runs every N weeks.
-        $Weekly,
+        [Parameter(ParameterSetName='Weekly',Mandatory)]
+        [ValidateRange(1,52)]
+        [int] $Weekly,
 
-        [Parameter(ParameterSetName='Monthly',Mandatory=$true)]
-        [Switch]
         # Create a scheduled task that runs every month.
-        $Monthly,
+        [Parameter(ParameterSetName='Monthly',Mandatory)]
+        [switch] $Monthly,
 
-        [Parameter(ParameterSetName='LastDayOfMonth',Mandatory=$true)]
-        [Switch]
         # Create a scheduled task that runs on the last day of every month. To run on specific months, specify the `Month` parameter.
-        $LastDayOfMonth,
+        [Parameter(ParameterSetName='LastDayOfMonth',Mandatory)]
+        [switch] $LastDayOfMonth,
 
-        [Parameter(ParameterSetName='Month',Mandatory=$true)]
+        # Create a scheduled task that runs on specific months. To create a monthly task, use the `Monthly` switch.
+        [Parameter(ParameterSetName='Month',Mandatory)]
         [Parameter(ParameterSetName='LastDayOfMonth')]
         [Parameter(ParameterSetName='WeekOfMonth')]
-        [Carbon_ScheduledTasks_Month[]]
-        # Create a scheduled task that runs on specific months. To create a monthly task, use the `Monthly` switch.
-        $Month,
+        [Carbon_ScheduledTasks_Month[]] $Month,
 
-        [Parameter(ParameterSetName='Monthly')]
-        [Parameter(ParameterSetName='Month',Mandatory=$true)]
-        [ValidateRange(1,31)]
-        [int]
         # The day of the month to run a monthly task.
-        $DayOfMonth,
+        [Parameter(ParameterSetName='Monthly')]
+        [Parameter(ParameterSetName='Month',Mandatory)]
+        [ValidateRange(1,31)]
+        [int] $DayOfMonth,
 
-        [Parameter(ParameterSetName='WeekOfMonth',Mandatory=$true)]
-        [Carbon_ScheduledTasks_WeekOfMonth]
         # Create a scheduled task that runs a particular week of the month.
-        $WeekOfMonth,
+        [Parameter(ParameterSetName='WeekOfMonth',Mandatory)]
+        [Carbon_ScheduledTasks_WeekOfMonth] $WeekOfMonth,
 
-        [Parameter(ParameterSetName='WeekOfMonth',Mandatory=$true)]
-        [Parameter(ParameterSetName='Weekly')]
-        [DayOfWeek[]]
         # The day of the week to run the task. Default is today.
-        $DayOfWeek,
+        [Parameter(ParameterSetName='WeekOfMonth',Mandatory)]
+        [Parameter(ParameterSetName='Weekly')]
+        [DayOfWeek[]] $DayOfWeek,
 
-        [Parameter(ParameterSetName='Once',Mandatory=$true)]
-        [Switch]
         # Create a scheduled task that runs once.
-        $Once,
+        [Parameter(ParameterSetName='Once',Mandatory)]
+        [switch] $Once,
 
-        [Parameter(ParameterSetName='OnStart',Mandatory=$true)]
-        [Switch]
         # Create a scheduled task that runs at startup.
-        $OnStart,
+        [Parameter(ParameterSetName='OnStart',Mandatory)]
+        [switch] $OnStart,
 
-        [Parameter(ParameterSetName='OnLogon',Mandatory=$true)]
-        [Switch]
         # Create a scheduled task that runs when the user running the task logs on.  Requires the `TaskCredential` parameter.
-        $OnLogon,
+        [Parameter(ParameterSetName='OnLogon',Mandatory)]
+        [switch] $OnLogon,
 
-        [Parameter(ParameterSetName='OnIdle',Mandatory=$true)]
-        [ValidateRange(1,999)]
-        [int]
         # Create a scheduled task that runs when the computer is idle for N minutes.
-        $OnIdle,
+        [Parameter(ParameterSetName='OnIdle',Mandatory)]
+        [ValidateRange(1,999)]
+        [int] $OnIdle,
 
-        [Parameter(ParameterSetName='OnEvent',Mandatory=$true)]
-        [Switch]
         # Create a scheduled task that runs when events appear in the Windows event log.
-        $OnEvent,
+        [Parameter(ParameterSetName='OnEvent',Mandatory)]
+        [switch] $OnEvent,
 
-        [Parameter(ParameterSetName='OnEvent',Mandatory=$true)]
-        [string]
         # The name of the event channel to look at.
-        $EventChannelName,
+        [Parameter(ParameterSetName='OnEvent',Mandatory)]
+        [String] $EventChannelName,
 
-        [Parameter(ParameterSetName='OnEvent',Mandatory=$true)]
-        [string]
         # The XPath event query to use to determine when to fire `OnEvent` tasks.
-        $EventXPathQuery,
+        [Parameter(ParameterSetName='OnEvent',Mandatory)]
+        [String] $EventXPathQuery,
 
-        [Parameter(Mandatory=$true,ParameterSetName='XmlFile')]
-        [string]
         # Install the task from this XML path.
-        $TaskXmlFilePath,
+        [Parameter(Mandatory, ParameterSetName='XmlFile')]
+        [String] $TaskXmlFilePath,
 
-        [Parameter(Mandatory=$true,ParameterSetName='Xml')]
-        [xml]
         # Install the task from this XML.
-        $TaskXml,
+        [Parameter(Mandatory, ParameterSetName='Xml')]
+        [xml] $TaskXml,
 
+        # Re-run the task every N minutes.
         [Parameter(ParameterSetName='Daily')]
         [Parameter(ParameterSetName='Weekly')]
         [Parameter(ParameterSetName='Monthly')]
@@ -302,23 +307,9 @@ function Install-CScheduledTask
         [Parameter(ParameterSetName='LastDayOfMonth')]
         [Parameter(ParameterSetName='WeekOfMonth')]
         [ValidateRange(1,599940)]
-        [int]
-        # Re-run the task every N minutes.
-        $Interval,
+        [int] $Interval,
 
-        [Parameter(ParameterSetName='Minute')]
-        [Parameter(ParameterSetName='Hourly')]
-        [Parameter(ParameterSetName='Daily')]
-        [Parameter(ParameterSetName='Weekly')]
-        [Parameter(ParameterSetName='Monthly')]
-        [Parameter(ParameterSetName='Month')]
-        [Parameter(ParameterSetName='LastDayOfMonth')]
-        [Parameter(ParameterSetName='WeekOfMonth')]
-        [Parameter(ParameterSetName='Once')]
-        [DateTime]
         # The date the task can start running.
-        $StartDate,
-
         [Parameter(ParameterSetName='Minute')]
         [Parameter(ParameterSetName='Hourly')]
         [Parameter(ParameterSetName='Daily')]
@@ -327,12 +318,10 @@ function Install-CScheduledTask
         [Parameter(ParameterSetName='Month')]
         [Parameter(ParameterSetName='LastDayOfMonth')]
         [Parameter(ParameterSetName='WeekOfMonth')]
-        [Parameter(ParameterSetName='Once',Mandatory=$true)]
-        [ValidateScript({ $_ -lt [timespan]'1' })]
-        [TimeSpan]
+        [Parameter(ParameterSetName='Once')]
+        [DateTime] $StartDate,
+
         # The start time to run the task. Must be less than `24:00`.
-        $StartTime,
-
         [Parameter(ParameterSetName='Minute')]
         [Parameter(ParameterSetName='Hourly')]
         [Parameter(ParameterSetName='Daily')]
@@ -341,10 +330,12 @@ function Install-CScheduledTask
         [Parameter(ParameterSetName='Month')]
         [Parameter(ParameterSetName='LastDayOfMonth')]
         [Parameter(ParameterSetName='WeekOfMonth')]
-        [TimeSpan]
-        # The duration to run the task. Usually used with `Interval` to repeatedly run a task over a given time span. By default, re-runs for an hour. Can't be used with `EndTime`.
-        $Duration,
+        [Parameter(ParameterSetName='Once',Mandatory)]
+        [ValidateScript({ $_ -lt [timespan]'1' })]
+        [TimeSpan] $StartTime,
 
+        # The duration to run the task. Usually used with `Interval` to repeatedly run a task over a given time span. By
+        # default, re-runs for an hour. Can't be used with `EndTime`.
         [Parameter(ParameterSetName='Minute')]
         [Parameter(ParameterSetName='Hourly')]
         [Parameter(ParameterSetName='Daily')]
@@ -353,10 +344,20 @@ function Install-CScheduledTask
         [Parameter(ParameterSetName='Month')]
         [Parameter(ParameterSetName='LastDayOfMonth')]
         [Parameter(ParameterSetName='WeekOfMonth')]
-        [DateTime]
+        [TimeSpan] $Duration,
+
         # The last date the task should run.
-        $EndDate,
+        [Parameter(ParameterSetName='Minute')]
+        [Parameter(ParameterSetName='Hourly')]
+        [Parameter(ParameterSetName='Daily')]
+        [Parameter(ParameterSetName='Weekly')]
+        [Parameter(ParameterSetName='Monthly')]
+        [Parameter(ParameterSetName='Month')]
+        [Parameter(ParameterSetName='LastDayOfMonth')]
+        [Parameter(ParameterSetName='WeekOfMonth')]
+        [DateTime] $EndDate,
 
+        # The end time to run the task. Must be less than `24:00`. Can't be used with `Duration`.
         [Parameter(ParameterSetName='Minute')]
         [Parameter(ParameterSetName='Hourly')]
         [Parameter(ParameterSetName='Daily')]
@@ -366,27 +367,9 @@ function Install-CScheduledTask
         [Parameter(ParameterSetName='LastDayOfMonth')]
         [Parameter(ParameterSetName='WeekOfMonth')]
         [ValidateScript({ $_ -lt [timespan]'1' })]
-        [TimeSpan]
-        # The end time to run the task. Must be less than `24:00`. Can't be used with `Duration`.
-        $EndTime,
+        [TimeSpan] $EndTime,
 
-        [Parameter(ParameterSetName='Minute')]
-        [Parameter(ParameterSetName='Hourly')]
-        [Parameter(ParameterSetName='Daily')]
-        [Parameter(ParameterSetName='Weekly')]
-        [Parameter(ParameterSetName='Monthly')]
-        [Parameter(ParameterSetName='Month')]
-        [Parameter(ParameterSetName='LastDayOfMonth')]
-        [Parameter(ParameterSetName='WeekOfMonth')]
-        [Parameter(ParameterSetName='Once')]
-        [Parameter(ParameterSetName='OnStart')]
-        [Parameter(ParameterSetName='OnLogon')]
-        [Parameter(ParameterSetName='OnIdle')]
-        [Parameter(ParameterSetName='OnEvent')]
-        [Switch]
         # Enables the task to run interactively only if the user is currently logged on at the time the job runs. The task will only run if the user is logged on. Must be used with `TaskCredential` parameter.
-        $Interactive,
-
         [Parameter(ParameterSetName='Minute')]
         [Parameter(ParameterSetName='Hourly')]
         [Parameter(ParameterSetName='Daily')]
@@ -400,10 +383,10 @@ function Install-CScheduledTask
         [Parameter(ParameterSetName='OnLogon')]
         [Parameter(ParameterSetName='OnIdle')]
         [Parameter(ParameterSetName='OnEvent')]
-        [Switch]
-        # No password is stored. The task runs non-interactively as the given user, who must be logged in. Only local resources are available. Must be used with `TaskCredential` parameter.
-        $NoPassword,
+        [switch] $Interactive,
 
+        # No password is stored. The task runs non-interactively as the given user, who must be logged in. Only local
+        # resources are available. Must be used with `TaskCredential` parameter.
         [Parameter(ParameterSetName='Minute')]
         [Parameter(ParameterSetName='Hourly')]
         [Parameter(ParameterSetName='Daily')]
@@ -417,24 +400,46 @@ function Install-CScheduledTask
         [Parameter(ParameterSetName='OnLogon')]
         [Parameter(ParameterSetName='OnIdle')]
         [Parameter(ParameterSetName='OnEvent')]
-        [Switch]
-        # If the user is an administrator, runs the task with full administrator rights. The default is to run with limited administrative privileges.
+        [switch] $NoPassword,
+
+        # If the user is an administrator, runs the task with full administrator rights. The default is to run with
+        # limited administrative privileges.
         #
-        # If UAC is enabled, an administrator has two security tokens: a filtered token that gets used by default and grants standard user rights and a full token that grants administrative rights that is only used when a program is "Run as administrator". Using this switch runs the scheduled task with the adminisrators full token. (Information taken from [How does "Run with the highest privileges" really work in Task Scheduler ?](https://social.technet.microsoft.com/Forums/windows/en-US/7167bb31-f375-4f77-b430-0339092e16b9/how-does-run-with-the-highest-privileges-really-work-in-task-scheduler-).)
+        # If UAC is enabled, an administrator has two security tokens: a filtered token that gets used by default and
+        # grants standard user rights and a full token that grants administrative rights that is only used when a
+        # program is "Run as administrator". Using this switch runs the scheduled task with the adminisrators full
+        # token. (Information taken from [How does "Run with the highest privileges" really work in Task Scheduler
+        # ?](https://social.technet.microsoft.com/Forums/windows/en-US/7167bb31-f375-4f77-b430-0339092e16b9/how-does-run-with-the-highest-privileges-really-work-in-task-scheduler-).)
+        [Parameter(ParameterSetName='Minute')]
+        [Parameter(ParameterSetName='Hourly')]
+        [Parameter(ParameterSetName='Daily')]
+        [Parameter(ParameterSetName='Weekly')]
+        [Parameter(ParameterSetName='Monthly')]
+        [Parameter(ParameterSetName='Month')]
+        [Parameter(ParameterSetName='LastDayOfMonth')]
+        [Parameter(ParameterSetName='WeekOfMonth')]
+        [Parameter(ParameterSetName='Once')]
+        [Parameter(ParameterSetName='OnStart')]
+        [Parameter(ParameterSetName='OnLogon')]
+        [Parameter(ParameterSetName='OnIdle')]
+        [Parameter(ParameterSetName='OnEvent')]
+        [switch]
         $HighestAvailableRunLevel,
 
+        # The wait time to delay the running of the task after the trigger is fired.  Must be less than 10,000 minutes
+        # (6 days, 22 hours, and 40 minutes).
         [Parameter(ParameterSetName='OnStart')]
         [Parameter(ParameterSetName='OnLogon')]
         [Parameter(ParameterSetName='OnEvent')]
         [ValidateScript({ $_ -lt '6.22:40:00'})]
-        [timespan]
-        # The wait time to delay the running of the task after the trigger is fired.  Must be less than 10,000 minutes (6 days, 22 hours, and 40 minutes).
-        $Delay,
+        [timespan] $Delay,
 
-        [Management.Automation.PSCredential]
-        # The principal the task should run as. Use `Principal` parameter to run as a built-in security principal. Required if `Interactive` or `NoPassword` switches are used.
-        $TaskCredential,
+        # The principal the task should run as. Use `Principal` parameter to run as a built-in security principal.
+        # Required if `Interactive` or `NoPassword` switches are used.
+        [Management.Automation.PSCredential] $TaskCredential,
 
+        # The built-in identity to use. The default is `System`. Use the `TaskCredential` parameter to run as
+        # non-built-in security principal.
         [Parameter(ParameterSetName='Minute')]
         [Parameter(ParameterSetName='Hourly')]
         [Parameter(ParameterSetName='Daily')]
@@ -449,17 +454,14 @@ function Install-CScheduledTask
         [Parameter(ParameterSetName='OnIdle')]
         [Parameter(ParameterSetName='OnEvent')]
         [ValidateSet('System','LocalService','NetworkService')]
-        [string]
-        # The built-in identity to use. The default is `System`. Use the `TaskCredential` parameter to run as non-built-in security principal.
-        $Principal = 'System',
+        [String] $Principal = 'System',
 
-        [Switch]
-        # Create the task even if a task with the same name already exists (i.e. delete any task with the same name before installation).
-        $Force
+        # Create the task even if a task with the same name already exists (i.e. delete any task with the same name
+        # before installation).
+        [switch] $Force
     )
 
     Set-StrictMode -Version 'Latest'
-
     Use-CallerPreference -Cmdlet $PSCmdlet -Session $ExecutionContext.SessionState
 
     if( (Test-CScheduledTask -Name $Name) )
@@ -494,7 +496,7 @@ function Install-CScheduledTask
     function ConvertTo-SchtasksCalendarNameList
     {
         param(
-            [Parameter(Mandatory=$true)]
+            [Parameter(Mandatory)]
             [object[]]
             $InputObject
         )
