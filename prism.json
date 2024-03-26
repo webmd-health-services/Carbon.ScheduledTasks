@@ -1,10 +1,8 @@
 {
 	"PSModules": [
     {
-      "Name": "Carbon.Core",
-      "Version": "*"
+      "Name": "Carbon",
+      "Version": "2.*"
     }
-  ],
-
-  "PSModulesDirectoryName": "Carbon.ScheduledTasks\\Modules"
+  ]
 }

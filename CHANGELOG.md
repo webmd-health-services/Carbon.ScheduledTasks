@@ -16,3 +16,9 @@ usages of these type *names*:
 * `[Carbon.TaskScheduler.ScheduleType]` → `[Carbon_ScheduledTasks_ScheduleType]`
 * `[Carbon.TaskScheduler.TaskInfo]` → `[Carbon_ScheduledTasks_TaskInfo]`
 * `[Carbon.TaskScheduler.WeekOfMonth]` → `[Carbon_ScheduledTasks_WeekOfMonth]`
+
+### Added
+
+* Migrated `Get-CScheduledTask`, `Install-CSCheduledTask`, and `Uninstall-CScheduledTask` from Carbon.
+* `Install-CScheduledTask` now supports creating scheduled tasks from XML or an XML file that run as built-in System,
+Network Service, or Local Service accounts.

@@ -1,18 +1,6 @@
 
 using module ..\Carbon.ScheduledTasks;
 
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 #Requires -Version 5.1
 Set-StrictMode -Version 'Latest'
 
@@ -21,6 +9,18 @@ BeforeAll {
 
     & (Join-Path -Path $PSScriptRoot -ChildPath 'Initialize-Test.ps1' -Resolve)
 
+    $psModulesPath = Join-Path -Path $PSScriptRoot -ChildPath '..\PSModules' -Resolve
+    Import-Module -Name (Join-Path -Path $psModulesPath -ChildPath 'Carbon' -Resolve) `
+                  -Function @('Install-CUser') `
+                  -Verbose:$false
+    $privateModulesPath = Join-Path -Path $PSScriptRoot -ChildPath '..\Carbon.ScheduledTasks\Modules' -Resolve
+    Import-Module -Name (Join-Path -Path $privateModulesPath -ChildPath 'Carbon.Accounts' -Resolve) `
+                  -Function @('Resolve-CIdentityName') `
+                  -Verbose:$false
+
+    $script:taskXmlPathWithPrincipal = Join-Path -Path $PSScriptRoot -ChildPath 'ScheduledTasks\task_with_principal.xml'
+    $script:taskXmlWithPrincipal = (Get-Content -Path $script:taskXmlPathWithPrincipal) -join ([Environment]::NewLine)
+
     $script:taskName = $null
     $script:credential = $null
     $script:AllMonths = @( 'January','February','March','April','May','June','July','August','September','October','November','December' )
@@ -28,24 +28,36 @@ BeforeAll {
     $script:today = New-Object 'DateTime' $script:today.Year,$script:today.Month,$script:today.Day
     $script:testNum = 0
 
-    $script:credential = New-CCredential -User 'CarbonInstallSchedul' -Password 'a1b2c34d!'
+    $script:credential =
+        [pscredential]::New('CarbonInstallSchedul', (ConvertTo-SecureString -String 'a1b2c34d!' -Force -AsPlainText))
     Install-CUser -Credential $script:credential -Description 'Test user for running scheduled tasks.'
 
     function Assert-TaskScheduledFromXml
     {
-        [CmdletBinding()]
+        [CmdletBinding(DefaultParameterSetName='BuiltinAccount')]
         param(
             $Path,
+
             $Xml,
+
+            [Parameter(ParameterSetName='BuiltinAccount')]
+            [String] $RunsAsBuiltInAccount,
+
+            [Parameter(ParameterSetName='CustomCredential')]
             [pscredential] $TaskCredential
         )
 
         Set-StrictMode -Version 'Latest'
 
         $installParams = @{ }
-        if( $TaskCredential )
+        if ($TaskCredential)
         {
             $installParams['TaskCredential'] = $TaskCredential
+        }
+
+        if ($RunsAsBuiltInAccount)
+        {
+            $installParams['Principal'] = $RunsAsBuiltInAccount
         }
 
         if( $Path )
@@ -73,7 +85,12 @@ BeforeAll {
         }
         else
         {
-            $task.Definition.Principal.UserId | Should -Match '\bSystem$'
+            if (-not $RunsAsBuiltInAccount)
+            {
+                $RunsAsBuiltInAccount = 'System'
+            }
+            $expectedUserId = Resolve-CIdentityName -Name $RunsAsBuiltInAccount
+            $task.Definition.Principal.UserId | Should -Be ($expectedUserId | Split-Path -Leaf)
         }
 
         if( $Path )
@@ -506,6 +523,27 @@ BeforeAll {
             $schedule.EventChannelName | Should -BeNullOrEmpty
         }
     }
+
+    function ThenTask
+    {
+        param(
+            [switch] $Exists,
+
+            [String] $RunsAs
+        )
+
+        $task = Get-CSCheduledTask -Name $script:taskName
+
+        if ($Exists)
+        {
+            $task | Should -Not -BeNullOrEmpty
+        }
+
+        if ($RunsAs)
+        {
+            $task.RunAsUser | Should -Be $RunsAS
+        }
+    }
 }
 
 AfterAll {
@@ -675,6 +713,21 @@ Describe 'Install-CScheduledTask' {
     }
 
     It 'should install from xml' -Skip:$skip {
-        Assert-TaskScheduledFromXml -Xml ((Get-Content -Path (Join-Path -Path $PSScriptRoot -ChildPath 'ScheduledTasks\task_with_principal.xml')) -join ([Environment]::NewLine))
+        Assert-TaskScheduledFromXml -Xml $script:taskXmlWithPrincipal
+    }
+
+    It 'installs from XML as System' {
+        Assert-TaskScheduledFromXml -Xml $script:taskXmlWithPrincipal -RunsAsBuiltInAccount 'System'
+        ThenTask -Exists -RunsAs 'System'
+    }
+
+    It 'installs from XML as LocalService' {
+        Assert-TaskScheduledFromXml -Xml $script:taskXmlWithPrincipal -RunsAsBuiltInAccount 'LocalService'
+        ThenTask -Exists -RunsAs 'Local Service'
+    }
+
+    It 'installs from XML file as NetworkService' {
+        Assert-TaskScheduledFromXml -Path $script:taskXmlPathWithPrincipal -RunsAsBuiltInAccount 'NetworkService'
+        ThenTask -Exists -RunsAs 'Network Service'
     }
 }

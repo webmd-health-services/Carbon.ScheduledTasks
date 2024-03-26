@@ -423,8 +423,7 @@ function Install-CScheduledTask
         [Parameter(ParameterSetName='OnLogon')]
         [Parameter(ParameterSetName='OnIdle')]
         [Parameter(ParameterSetName='OnEvent')]
-        [switch]
-        $HighestAvailableRunLevel,
+        [switch] $HighestAvailableRunLevel,
 
         # The wait time to delay the running of the task after the trigger is fired.  Must be less than 10,000 minutes
         # (6 days, 22 hours, and 40 minutes).
@@ -453,6 +452,8 @@ function Install-CScheduledTask
         [Parameter(ParameterSetName='OnLogon')]
         [Parameter(ParameterSetName='OnIdle')]
         [Parameter(ParameterSetName='OnEvent')]
+        [Parameter(ParameterSetName='XmlFile')]
+        [Parameter(ParameterSetName='Xml')]
         [ValidateSet('System','LocalService','NetworkService')]
         [String] $Principal = 'System',
 
@@ -487,10 +488,10 @@ function Install-CScheduledTask
         [void]$parameters.Add( $TaskCredential.GetNetworkCredential().Password )
         Grant-CPrivilege -Identity $TaskCredential.UserName -Privilege 'SeBatchLogonRight'
     }
-    elseif( $PSCmdlet.ParameterSetName -notlike 'Xml*' )
+    elseif ($Principal)
     {
         [void]$parameters.Add( '/RU' )
-        [void]$parameters.Add( (Resolve-CIdentityName -Name $Principal -NoWarn) )
+        [void]$parameters.Add( (Resolve-CIdentityName -Name $Principal) )
     }
 
     function ConvertTo-SchtasksCalendarNameList
@@ -711,7 +712,7 @@ function Install-CScheduledTask
         # are prefixed with ERRROR and WARNING, so we can combine output/error streams and parse
         # it later. We just have to make sure we remove any errors added to the $Error variable.
         $preErrorCount = $Global:Error.Count
-        $output = schtasks /create /TN $Name $parameters 2>&1
+        $output = '' | schtasks /create /TN $Name $parameters 2>&1
         $postErrorCount = $Global:Error.Count
         if( $postErrorCount -gt $preErrorCount )
         {
