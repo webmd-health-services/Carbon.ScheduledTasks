@@ -147,7 +147,7 @@ function Get-CScheduledTask
             {
                 $duration = $repetition.Duration
                 $durationAsTimeSpan = ConvertFrom-DurationSpec -Duration $repetition.Duration
-                if( $durationAsTimeSpan -ne $null )
+                if ( $null -ne $durationAsTimeSpan)
                 {
                     $duration = $durationAsTimeSpan
                 }
@@ -162,7 +162,7 @@ function Get-CScheduledTask
         if( $TriggerElement | Get-Member -Name 'Delay' )
         {
             $delayAsTimeSpan = ConvertFrom-DurationSpec -Duration $TriggerElement.Delay
-            if( $delayAsTimeSpan -ne $null )
+            if ($null -ne $delayAsTimeSpan)
             {
                 $delay = $delayAsTimeSpan
             }
@@ -250,10 +250,10 @@ function Get-CScheduledTask
     {
         if( (Test-Path -Path $errFile -PathType Leaf) )
         {
-            $error = (Get-Content -Path $errFile) -join ([Environment]::NewLine)
+            $err = (Get-Content -Path $errFile) -join ([Environment]::NewLine)
             try
             {
-                if( $error -match 'The\ system\ cannot\ find\ the\ (file|path)\ specified\.' )
+                if ($err -match 'The\ system\ cannot\ find\ the\ (file|path)\ specified\.')
                 {
                     Write-Error ('Scheduled task ''{0}'' not found.' -f $Name) -ErrorAction $ErrorActionPreference
                 }
@@ -449,7 +449,7 @@ function Get-CScheduledTask
                         if( $idleSettingsNode | Get-Member 'Duration' )
                         {
                             $idleTimeAsTimeSpan = ConvertFrom-DurationSpec -Duration $xmlTask.Settings.IdleSettings.Duration
-                            if( $idleTimeAsTimeSpan -ne $null )
+                            if ($null -ne $idleTimeAsTimeSpan)
                             {
                                 $idleTime = $idleTimeAsTimeSpan.TotalMinutes
                             }
