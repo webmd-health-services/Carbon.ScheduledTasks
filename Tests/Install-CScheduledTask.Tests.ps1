@@ -1,3 +1,6 @@
+
+using module ..\Carbon.ScheduledTasks;
+
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -121,7 +124,7 @@ BeforeAll {
         $task = Install-CScheduledTask -Principal System @InstallArguments
         $Global:Error.Count | Should -Be 0
         $task | Should -Not -BeNullOrEmpty
-        $task | Should -BeOfType ([Carbon.TaskScheduler.TaskInfo])
+        $task | Should -BeOfType ([Carbon_ScheduledTasks_TaskInfo])
         Assert-ScheduledTask -Principal 'System' @AssertArguments
 
         $preTask = Get-CScheduledTask -Name $script:taskName -AsComObject
@@ -137,7 +140,7 @@ BeforeAll {
         $task = Install-CScheduledTask @InstallArguments
         $Global:Error.Count | Should -Be 0
         $task | Should -Not -BeNullOrEmpty
-        $task | Should -BeOfType ([Carbon.TaskScheduler.TaskInfo])
+        $task | Should -BeOfType ([Carbon_ScheduledTasks_TaskInfo])
         Assert-ScheduledTask @AssertArguments
 
         # Install to start tomorrow
@@ -149,7 +152,7 @@ BeforeAll {
             {
                 $task = Install-CScheduledTask @InstallArguments -Interval 37
                 $task | Should -Not -BeNullOrEmpty
-                $task | Should -BeOfType ([Carbon.TaskScheduler.TaskInfo])
+                $task | Should -BeOfType ([Carbon_ScheduledTasks_TaskInfo])
                 Assert-ScheduledTask @AssertArguments -Interval 37
                 break
             }
@@ -165,7 +168,7 @@ BeforeAll {
                     $task = Install-CScheduledTask @InstallArguments -StartTime '23:06'
                     $Global:Error.Count | Should -Be 0
                     $task | Should -Not -BeNullOrEmpty
-                    $task | Should -BeOfType ([Carbon.TaskScheduler.TaskInfo])
+                    $task | Should -BeOfType ([Carbon_ScheduledTasks_TaskInfo])
                     Assert-ScheduledTask @AssertArguments -StartTime '23:06'
                     break
                 }
@@ -180,7 +183,7 @@ BeforeAll {
                 $task = Install-CScheduledTask @InstallArguments -StartDate $script:today.AddDays(1)
                 $Global:Error.Count | Should -Be 0
                 $task | Should -Not -BeNullOrEmpty
-                $task | Should -BeOfType ([Carbon.TaskScheduler.TaskInfo])
+                $task | Should -BeOfType ([Carbon_ScheduledTasks_TaskInfo])
                 Assert-ScheduledTask @AssertArguments -StartDate $script:today.AddDays(1)
             }
         }
@@ -193,7 +196,7 @@ BeforeAll {
                 $task = Install-CScheduledTask @InstallArguments -Duration '5:30'  # Using fractional hours to ensure it gets converted properly.
                 $Global:Error.Count | Should -Be 0
                 $task | Should -Not -BeNullOrEmpty
-                $task | Should -BeOfType ([Carbon.TaskScheduler.TaskInfo])
+                $task | Should -BeOfType ([Carbon_ScheduledTasks_TaskInfo])
                 Assert-ScheduledTask @AssertArguments -Duration '5:30'
                 break
             }
@@ -207,7 +210,7 @@ BeforeAll {
                 $task = Install-CScheduledTask @InstallArguments -EndDate $script:today.AddYears(1)
                 $Global:Error.Count | Should -Be 0
                 $task | Should -Not -BeNullOrEmpty
-                $task | Should -BeOfType ([Carbon.TaskScheduler.TaskInfo])
+                $task | Should -BeOfType ([Carbon_ScheduledTasks_TaskInfo])
                 Assert-ScheduledTask @AssertArguments -EndDate $script:today.AddYears(1)
                 break
             }
@@ -226,7 +229,7 @@ BeforeAll {
                 $task = Install-CScheduledTask @InstallArguments @endTimeParams
                 $Global:Error.Count | Should -Be 0
                 $task | Should -Not -BeNullOrEmpty
-                $task | Should -BeOfType ([Carbon.TaskScheduler.TaskInfo])
+                $task | Should -BeOfType ([Carbon_ScheduledTasks_TaskInfo])
                 Assert-ScheduledTask @AssertArguments @endTimeParams
                 break
             }
@@ -236,21 +239,21 @@ BeforeAll {
         $task = Install-CScheduledTask @InstallArguments -Interactive
         $Global:Error | Should -BeNullOrEmpty
         $task | Should -Not -BeNullOrEmpty
-        $task | Should -BeOfType ([Carbon.TaskScheduler.TaskInfo])
+        $task | Should -BeOfType ([Carbon_ScheduledTasks_TaskInfo])
         Assert-ScheduledTask @AssertArguments -Interactive
 
         # Install as no password
         $task = Install-CScheduledTask @InstallArguments -NoPassword
         $Global:Error | Should -BeNullOrEmpty
         $task | Should -Not -BeNullOrEmpty
-        $task | Should -BeOfType ([Carbon.TaskScheduler.TaskInfo])
+        $task | Should -BeOfType ([Carbon_ScheduledTasks_TaskInfo])
         Assert-ScheduledTask @AssertArguments -NoPassword
 
         # Install as highest run level
         $task = Install-CScheduledTask @InstallArguments -HighestAvailableRunLevel
         $Global:Error.Count | Should -Be 0
         $task | Should -Not -BeNullOrEmpty
-        $task | Should -BeOfType ([Carbon.TaskScheduler.TaskInfo])
+        $task | Should -BeOfType ([Carbon_ScheduledTasks_TaskInfo])
         Assert-ScheduledTask @AssertArguments -HighestAvailableRunLevel
 
         $delaySchedules = @( 'OnStart', 'OnLogon', 'OnEvent' )
@@ -261,7 +264,7 @@ BeforeAll {
                 $task = Install-CScheduledTask @InstallArguments -Delay '6.22:39:59'
                 $Global:Error.Count | Should -Be 0
                 $task | Should -Not -BeNullOrEmpty
-                $task | Should -BeOfType ([Carbon.TaskScheduler.TaskInfo])
+                $task | Should -BeOfType ([Carbon_ScheduledTasks_TaskInfo])
                 Assert-ScheduledTask @AssertArguments -Delay '6.22:39:59'
                 break
             }
@@ -283,7 +286,7 @@ BeforeAll {
             $Modifier,
             [int[]] $DayOfMonth,
             [DayOfWeek[]] $DayOfWeek,
-            [Carbon.TaskScheduler.Month[]] $Months,
+            [Carbon_ScheduledTasks_Month[]] $Months,
             [int] $IdleTime,
             [TimeSpan] $StartTime,
             $Interval,

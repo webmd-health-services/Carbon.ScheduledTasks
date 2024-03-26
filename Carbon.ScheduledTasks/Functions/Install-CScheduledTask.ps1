@@ -1,11 +1,4 @@
 
-# Leave this here so that when we move this function to its own module, these go with it.
-Add-CTypeData -Type Carbon.TaskScheduler.TaskInfo -MemberType AliasProperty -MemberName 'State' -Value 'Status'
-Add-CTypeData -Type Carbon.TaskScheduler.TaskInfo `
-              -MemberType ScriptProperty `
-              -MemberName 'FullName' `
-              -Value { return Join-Path -Path $this.TaskPath -ChildPath $this.TaskName }
-
 function Install-CScheduledTask
 {
     <#
@@ -15,7 +8,7 @@ function Install-CScheduledTask
     .DESCRIPTION
     The `Install-CScheduledTask` function uses `schtasks.exe` to install a scheduled task on the current computer. If a task with the same name already exists, the existing task is left in place. Use the `-Force` switch to force `Install-CScheduledTask` to delete any existing tasks before installation.
 
-    If a new task is created, a `Carbon.TaskScheduler.TaskInfo` object is returned.
+    If a new task is created, a `[Carbon_ScheduledTasks_TaskInfo]` object is returned.
 
     The `schtasks.exe` command line application is pretty limited in the kind of tasks it will create. If you need a scheduled task created with options not supported by `Install-CScheduledTask`, you can create an XML file using the [Task Scheduler Schema](http://msdn.microsoft.com/en-us/library/windows/desktop/aa383609.aspx) or create a task with the Task Scheduler MMC then export that task as XML with the `schtasks.exe /query /xml /tn <TaskName>`. Pass the XML file (or the raw XML) with the `TaskXmlFilePath` or `TaskXml` parameters, respectively.
 
@@ -165,7 +158,6 @@ function Install-CScheduledTask
     Demonstrates how to create tasks under a folder/directory: use a path for the `Name` parameter.
     #>
     [CmdletBinding()]
-    [OutputType([Carbon.TaskScheduler.TaskInfo])]
     param(
         [Parameter(Mandatory=$true)]
         [ValidateLength(1,238)]
@@ -235,7 +227,7 @@ function Install-CScheduledTask
         [Parameter(ParameterSetName='Month',Mandatory=$true)]
         [Parameter(ParameterSetName='LastDayOfMonth')]
         [Parameter(ParameterSetName='WeekOfMonth')]
-        [Carbon.TaskScheduler.Month[]]
+        [Carbon_ScheduledTasks_Month[]]
         # Create a scheduled task that runs on specific months. To create a monthly task, use the `Monthly` switch.
         $Month,
 
@@ -247,7 +239,7 @@ function Install-CScheduledTask
         $DayOfMonth,
 
         [Parameter(ParameterSetName='WeekOfMonth',Mandatory=$true)]
-        [Carbon.TaskScheduler.WeekOfMonth]
+        [Carbon_ScheduledTasks_WeekOfMonth]
         # Create a scheduled task that runs a particular week of the month.
         $WeekOfMonth,
 

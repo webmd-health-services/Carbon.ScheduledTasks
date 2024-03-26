@@ -76,6 +76,10 @@
 
     # Functions to export from this module. Only list public function here.
     FunctionsToExport = @(
+        'Get-CScheduledTask',
+        'Install-CScheduledTask',
+        'Test-CScheduledTask',
+        'Uninstall-CScheduledTask'
     )
 
     # Cmdlets to export from this module. By default, you get a script module, so there are no cmdlets.

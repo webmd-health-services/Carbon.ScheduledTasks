@@ -1,3 +1,6 @@
+
+using module ..\Carbon.ScheduledTasks;
+
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -13,7 +16,7 @@
 
 & (Join-Path -Path $PSScriptRoot -ChildPath 'Initialize-Test.ps1' -Resolve)
 
-Describe 'Get-ScheduledTask' {
+Describe 'Get-CScheduledTask' {
     function Assert-ScheduledTaskEqual
     {
         param(
@@ -23,24 +26,23 @@ Describe 'Get-ScheduledTask' {
 
         Write-Debug ('{0} <=> {1}' -f $Expected.TaskName,$Actual.TaskName)
         $randomNextRunTimeTasks = @{
-                                        '\Microsoft\Office\Office 15 Subscription Heartbeat' = $true;
-                                        '\OneDrive Standalone Update Task-S-1-5-21-1225507754-3068891322-2807220505-500' = $true;
-                                    }
+            '\Microsoft\Office\Office 15 Subscription Heartbeat' = $true;
+        }
         $scheduleProps = @(
-                               'Last Result',
-                               'Stop Task If Runs X Hours And X Mins',
-                               'Schedule',
-                               'Schedule Type',
-                               'Start Time',
-                               'Start Date',
-                               'End Date',
-                               'Days',
-                               'Months',
-                               'Repeat: Every',
-                               'Repeat: Until: Time',
-                               'Repeat: Until: Duration',
-                               'Repeat: Stop If Still Running'
-                         )
+            'Last Result',
+            'Stop Task If Runs X Hours And X Mins',
+            'Schedule',
+            'Schedule Type',
+            'Start Time',
+            'Start Date',
+            'End Date',
+            'Days',
+            'Months',
+            'Repeat: Every',
+            'Repeat: Until: Time',
+            'Repeat: Until: Duration',
+            'Repeat: Stop If Still Running'
+        )
 
         foreach( $property in (Get-Member -InputObject $Expected -MemberType NoteProperty) )
         {
@@ -65,7 +67,12 @@ Describe 'Get-ScheduledTask' {
                 $Actual.TaskName | Should -Be $name -Because ('{0}  TaskName' -f $task.FullName)
                 $Actual.TaskPath | Should -Be $path -Because ('{0}  TaskPath' -f $task.FullName)
             }
-            elseif( $propertyName -in @( 'NextRunTime', 'LastRuntime' ) -and ($task.FullName -like '\Microsoft\Windows\*' -or $randomNextRunTimeTasks.ContainsKey($task.FullName)) )
+            elseif ($propertyName -in @( 'NextRunTime', 'LastRuntime' ) -and `
+                    (
+                        $task.FullName -like '\Microsoft\Windows\*' -or `
+                        $task.FullName -like '\OneDrive Standalone Update Task*' -or `
+                        $randomNextRunTimeTasks.ContainsKey($task.FullName)
+                    ) )
             {
                 # This task's next run time changes every time you retrieve it.
                 continue
@@ -101,6 +108,12 @@ Describe 'Get-ScheduledTask' {
                             }
                         }
                     }
+
+                    # only the first 253 chars come back of the task to run.
+                    if ($expectedValue.Length -ge 253)
+                    {
+                        continue
+                    }
                 }
                 Write-Debug ('    {0} <=> {1}' -f $Actual.$propertyName,$expectedValue)
                 ($Actual.$propertyName) | Should -Be $expectedValue -Because $because
@@ -121,7 +134,7 @@ Describe 'Get-ScheduledTask' {
             Where-Object { $_.TaskName -notlike '*Intel*' -and $_.TaskName -notlike '\Microsoft\*' } |  # Some Intel scheduled tasks have characters in their names that don't play well.
             ForEach-Object {
                 $expectedTask = $_
-                $task = Get-ScheduledTask -Name $expectedTask.TaskName
+                $task = Get-CScheduledTask -Name $expectedTask.TaskName
                 $task | Should Not BeNullOrEmpty
 
                 Assert-ScheduledTaskEqual $expectedTask $task
@@ -129,7 +142,7 @@ Describe 'Get-ScheduledTask' {
     }
 
     It 'should get schedules' {
-        $multiScheduleTasks = Get-ScheduledTask | Where-Object { $_.Schedules.Count -gt 1 }
+        $multiScheduleTasks = Get-CScheduledTask | Where-Object { $_.Schedules.Count -gt 1 }
 
         $multiScheduleTasks | Should Not BeNullOrEmpty
 
@@ -157,7 +170,7 @@ Describe 'Get-ScheduledTask' {
             foreach( $expectedSchedule in $expectedSchedules )
             {
                 $actualSchedule = $multiScheduleTask.Schedules[$scheduleIdx++]
-                $actualSchedule | Should BeOfType ([Carbon.TaskScheduler.ScheduleInfo])
+                $actualSchedule.GetType().FullName | Should -Be ([Carbon_ScheduledTasks_ScheduleInfo].FullName)
             }
         }
     }
@@ -166,25 +179,25 @@ Describe 'Get-ScheduledTask' {
         $expectedTask = Get-CScheduledTask -AsComObject | Select-Object -First 1
         $expectedTask | Should -Not -BeNullOrEmpty
         $wildcard = ('*{0}*' -f $expectedTask.Path.Substring(1,$expectedTask.Path.Length - 2))
-        $task = Get-ScheduledTask -Name $wildcard
+        $task = Get-CScheduledTask -Name $wildcard
         $task | Should -Not -BeNullOrEmpty
-        $task | Should -BeOfType ([Carbon.TaskScheduler.TaskInfo])
+        $task.GetType().FullName | Should -Be ([Carbon_ScheduledTasks_TaskInfo].FullName)
         Join-Path -Path $task.TaskPath -ChildPath $task.TaskName | Should Be $expectedTask.Path
     }
 }
 
-Describe 'Get-ScheduledTask.when getting all tasks' {
+Describe 'Get-CScheduledTask.when getting all tasks' {
     It 'should get all scheduled tasks' {
         $expectedTasks = Get-CScheduledTask -AsComObject | Measure-Object
-        $actualTasks = Get-ScheduledTask
+        $actualTasks = Get-CScheduledTask
         $actualTasks.Count | Should -Be $expectedTasks.Count
     }
 
 }
 
-Describe 'Get-ScheduledTask.when task does not exist' {
+Describe 'Get-CScheduledTask.when task does not exist' {
     $Global:Error.Clear()
-    $result = Get-ScheduledTask -Name 'fjdskfjsdflkjdskfjsdklfjskadljfksdljfklsdjf' -ErrorAction SilentlyContinue
+    $result = Get-CScheduledTask -Name 'fjdskfjsdflkjdskfjsdklfjskadljfksdljfklsdjf' -ErrorAction SilentlyContinue
     It 'write no errors' {
         $Global:Error.Count | Should BeGreaterThan 0
         $Global:Error[0] | Should Match 'not found'

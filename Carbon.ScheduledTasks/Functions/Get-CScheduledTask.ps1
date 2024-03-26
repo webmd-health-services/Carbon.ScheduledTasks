@@ -6,12 +6,12 @@ Add-CTypeData -TypeName 'System.__ComObject#{9c86f320-dee3-4dd1-b972-a303f26b061
               -MemberType ScriptProperty `
               -Value {
                     switch( $this.State )
-                    { 
+                    {
                         1 { return "Disabled" }
                         2 { return "Queued" }
-                        3 { return "Ready" } 
+                        3 { return "Ready" }
                         4 { return "Running" }
-                        default { return "Unknown" } 
+                        default { return "Unknown" }
                     }
                 }
 
@@ -22,13 +22,21 @@ function Get-CScheduledTask
     Gets the scheduled tasks for the current computer.
 
     .DESCRIPTION
-    The `Get-CScheduledTask` function gets the scheduled tasks on the current computer. It returns `Carbon.TaskScheduler.TaskInfo` objects for each one.
+    The `Get-CScheduledTask` function gets the scheduled tasks on the current computer. It returns
+    `[Carbon_ScheduledTask_TaskInfo]` objects for each one.
 
-    With no parameters, `Get-CScheduledTask` returns all scheduled tasks. To get a specific scheduled task, use the `Name` parameter, which must be the full name of the task, i.e. path plus name. The name parameter accepts wildcards. If a scheduled task with the given name isn't found, an error is written.
+    With no parameters, `Get-CScheduledTask` returns all scheduled tasks. To get a specific scheduled task, use the
+    `Name` parameter, which must be the full name of the task, i.e. path plus name. The name parameter accepts
+    wildcards. If a scheduled task with the given name isn't found, an error is written.
 
-    By default, `Get-CScheduledTask` uses the `schtasks.exe` application to get scheduled task information. Beginning in Carbon 2.8.0, you can return `RegisteredTask` objects from the `Schedule.Service` COM API with the `AsComObject` switch. Using this switch is an order of magnitude faster. In the next major version of Carbon, this will become the default behavior.
+    By default, `Get-CScheduledTask` uses the `schtasks.exe` application to get scheduled task information. Beginning in
+    Carbon 2.8.0, you can return `RegisteredTask` objects from the `Schedule.Service` COM API with the `AsComObject`
+    switch. Using this switch is an order of magnitude faster. In the next major version of Carbon, this will become the
+    default behavior.
 
-    Before Carbon 2.7.0, this function has the same name as the built-in `Get-ScheduledTask` function that comes on Windows 2012/8 and later. It returns objects with the same properties, but if you want to use the built-in function, use the `ScheduledTasks` qualifier, e.g. `ScheduledTasks\Get-ScheduledTask`.
+    Before Carbon 2.7.0, this function has the same name as the built-in `Get-CScheduledTask` function that comes on
+    Windows 2012/8 and later. It returns objects with the same properties, but if you want to use the built-in function,
+    use the `ScheduledTasks` qualifier, e.g. `ScheduledTasks\Get-CScheduledTask`.
 
     .LINK
     Test-CScheduledTask
@@ -51,10 +59,10 @@ function Get-CScheduledTask
     .EXAMPLE
     ScheduledTasks\Get-CScheduledTask
 
-    Demonstrates how to call the `Get-CScheduledTask` function in the `ScheduledTasks` module which ships on Windows 2012/8 and later.
+    Demonstrates how to call the `Get-CScheduledTask` function in the `ScheduledTasks` module which ships on Windows
+    2012/8 and later.
     #>
     [CmdletBinding()]
-    [OutputType([Carbon.TaskScheduler.TaskInfo])]
     param(
         [Parameter()]
         [Alias('TaskName')]
@@ -93,7 +101,7 @@ function Get-CScheduledTask
 
         Set-StrictMode -Version 'Latest'
 
-        [Carbon.TaskScheduler.ScheduleType]$scheduleType = [Carbon.TaskScheduler.ScheduleType]::Unknown
+        [Carbon_ScheduledTasks_ScheduleType]$scheduleType = [Carbon_ScheduledTasks_ScheduleType]::Unknown
         $interval = $null
         $modifier = $null
         $duration = $null
@@ -134,7 +142,7 @@ function Get-CScheduledTask
                     'Minute' { $modifier = $timespan.TotalMinutes }
                 }
             }
-        
+
             if( $repetition | Get-Member -Name 'Duration' )
             {
                 $duration = $repetition.Duration
@@ -189,11 +197,11 @@ function Get-CScheduledTask
             param(
                 $Folder
             )
-    
+
             $getHiddenTasks = 1
-    
+
             $Folder.GetTasks($getHiddenTasks) | ForEach-Object { $_ }
-    
+
             foreach( $subFolder in $Folder.GetFolders($getHiddenTasks) )
             {
                 Get-Tasks -Folder $subFolder
@@ -201,12 +209,12 @@ function Get-CScheduledTask
         }
 
         $tasks = Get-Tasks -Folder $taskScheduler.GetFolder("\") |
-                    Where-Object { 
+                    Where-Object {
                         if( -not $Name )
                         {
                             return $true
                         }
-                    
+
                         return $_.Path -like $Name
                     }
 
@@ -228,9 +236,9 @@ function Get-CScheduledTask
     $errFile = Join-Path -Path $env:TEMP -ChildPath ('Carbon+Get-CScheduledTask+{0}' -f [IO.Path]::GetRandomFileName())
     try
     {
-        $output = schtasks /query /v /fo csv $optionalArgs 2> $errFile | 
-                    ConvertFrom-Csv | 
-                    Where-Object { $_.HostName -ne 'HostName' } 
+        $output = schtasks /query /v /fo csv $optionalArgs 2> $errFile |
+                    ConvertFrom-Csv |
+                    Where-Object { $_.HostName -ne 'HostName' }
     }
     finally
     {
@@ -282,7 +290,7 @@ function Get-CScheduledTask
         {
             $xml = schtasks /query /tn $csvTask.TaskName /xml | Where-Object { $_ }
             $xml = $xml -join ([Environment]::NewLine)
-            $xmlDoc = [xml]$xml            
+            $xmlDoc = [xml]$xml
         }
 
         $taskPath = Split-Path -Parent -Path $csvTask.TaskName
@@ -318,7 +326,7 @@ function Get-CScheduledTask
         $createDate = [DateTime]::MinValue
         if( $xmlTask | Get-Member -Name 'RegistrationInfo' )
         {
-            $regInfo = $xmlTask.RegistrationInfo 
+            $regInfo = $xmlTask.RegistrationInfo
             if( $regInfo | Get-Member -Name 'Date' )
             {
                 $createDate = [datetime]$regInfo.Date
@@ -345,36 +353,34 @@ function Get-CScheduledTask
             }
         }
 
-        $ctorArgs = @(
-                        $csvTask.HostName,
-                        $taskPath,
-                        $taskName,
-                        $csvTask.'Next Run Time',
-                        $csvTask.Status,
-                        $csvTask.'Logon Mode',
-                        $csvTask.'Last Run Time',
-                        $csvTask.Author,
-                        $createDate,
-                        $taskToRun,
-                        $csvTask.'Start In',
-                        $csvTask.Comment,
-                        $csvTask.'Scheduled Task State',
-                        $csvTask.'Idle Time',
-                        $csvTask.'Power Management',
-                        $csvTask.'Run As User',
-                        $isInteractive,
-                        $noPassword,
-                        $highestRunLevel,
-                        $csvTask.'Delete Task If Not Rescheduled'
-                    )
-
-        $task = New-Object -TypeName 'Carbon.TaskScheduler.TaskInfo' -ArgumentList $ctorArgs
+        $task = [Carbon_ScheduledTasks_TaskInfo]::New(
+            $csvTask.HostName,
+            $taskPath,
+            $taskName,
+            $csvTask.'Next Run Time',
+            $csvTask.Status,
+            $csvTask.'Logon Mode',
+            $csvTask.'Last Run Time',
+            $csvTask.Author,
+            $createDate,
+            $taskToRun,
+            $csvTask.'Start In',
+            $csvTask.Comment,
+            $csvTask.'Scheduled Task State',
+            $csvTask.'Idle Time',
+            $csvTask.'Power Management',
+            $csvTask.'Run As User',
+            $isInteractive,
+            $noPassword,
+            $highestRunLevel,
+            $csvTask.'Delete Task If Not Rescheduled'
+        )
 
         $scheduleIdx = 0
         while( $idx -lt $output.Count -and $output[$idx].TaskName -eq $csvTask.TaskName )
         {
             $csvTask = $output[$idx++]
-            [Carbon.TaskScheduler.ScheduleType]$scheduleType = [Carbon.TaskScheduler.ScheduleType]::Unknown
+            [Carbon_ScheduledTasks_ScheduleType]$scheduleType = [Carbon_ScheduledTasks_ScheduleType]::Unknown
 
             [int[]]$days = @()
             [int]$csvDay = 0
@@ -384,7 +390,7 @@ function Get-CScheduledTask
             }
 
             $duration = $csvTask.'Repeat: Until: Duration'
-            [Carbon.TaskScheduler.Month[]]$months = @()
+            [Carbon_ScheduledTasks_Month[]]$months = @()
             $modifier = $null
             $stopAtEnd = $false
             [int]$interval = 0
@@ -397,7 +403,7 @@ function Get-CScheduledTask
             $triggers = $xmlTask.GetElementsByTagName('Triggers') | Select-Object -First 1
             if( -not $triggers -or $triggers.ChildNodes.Count -eq 0 )
             {
-                $scheduleType = [Carbon.TaskScheduler.ScheduleType]::OnDemand
+                $scheduleType = [Carbon_ScheduledTasks_ScheduleType]::OnDemand
             }
             elseif( $triggers.ChildNodes.Count -gt 0 )
             {
@@ -460,11 +466,11 @@ function Get-CScheduledTask
                 }
                 elseif( $trigger.Name -eq 'SessionStateChangeTrigger' )
                 {
-                    $scheduleType = [Carbon.TaskScheduler.ScheduleType]::SessionStateChange
+                    $scheduleType = [Carbon_ScheduledTasks_ScheduleType]::SessionStateChange
                 }
                 elseif( $trigger.Name -eq 'RegistrationTrigger' )
                 {
-                    $scheduleType = [Carbon.TaskScheduler.ScheduleType]::Registration
+                    $scheduleType = [Carbon_ScheduledTasks_ScheduleType]::Registration
                 }
                 elseif( $trigger.Name -eq 'CalendarTrigger' )
                 {
@@ -509,7 +515,7 @@ function Get-CScheduledTask
                             }
                         }
 
-                        [Carbon.TaskScheduler.Month[]]$months = $monthsNode.ChildNodes | ForEach-Object { ([Carbon.TaskScheduler.Month]$_.Name) }
+                        [Carbon_ScheduledTasks_Month[]]$months = $monthsNode.ChildNodes | ForEach-Object { ([Carbon_ScheduledTasks_Month]$_.Name) }
                     }
                     elseif( $triggers.GetElementsByTagName('ScheduleByMonthDayOfWeek').Count -eq 1 )
                     {
@@ -517,7 +523,7 @@ function Get-CScheduledTask
                         $interval = $modifier
                         $scheduleNode = $trigger.ScheduleByMonthDayOfWeek
                         $daysOfWeek = $scheduleNode.DaysOfWeek.ChildNodes | ForEach-Object { [DayOfWeek]$_.Name }
-                        $months = $scheduleNode.Months.ChildNodes | ForEach-Object { ([Carbon.TaskScheduler.Month]$_.Name) }
+                        $months = $scheduleNode.Months.ChildNodes | ForEach-Object { ([Carbon_ScheduledTasks_Month]$_.Name) }
                         switch( $scheduleNode.Weeks.Week )
                         {
                             1 { $modifier = 'First' }
@@ -577,30 +583,28 @@ function Get-CScheduledTask
             $startTime = ConvertFrom-SchtasksTime $csvTask.'Start Time'
             $endDate = ConvertFrom-SchtasksDate $csvTask.'End Date' -DefaultValue ([DateTime]::MaxValue)
 
-            $scheduleCtorArgs = @(
-                                    $csvTask.'Last Result',
-                                    $csvTask.'Stop Task If Runs X Hours And X Mins',
-                                    $scheduleType,
-                                    $modifier,
-                                    $interval,
-                                    $startTime,
-                                    $startDate,
-                                    $endTime,
-                                    $endDate,
-                                    $daysOfWeek,
-                                    $days,
-                                    $months,
-                                    $csvTask.'Repeat: Every',
-                                    $csvTask.'Repeat: Until: Time',
-                                    $duration,
-                                    $csvTask.'Repeat: Stop If Still Running',
-                                    $stopAtEnd,
-                                    $delay,
-                                    $idleTime,
-                                    $eventChannelName
-                                )
+            $schedule = [Carbon_ScheduledTasks_ScheduleInfo]::New()
+            $schedule.LastResult = $csvTask.'Last Result'
+            $schedule.StopTaskIfRunsXHoursandXMins = $csvTask.'Stop Task If Runs X Hours And X Mins'
+            $schedule.ScheduleType = $scheduleType
+            $schedule.Modifier = $modifier
+            $schedule.Interval = $interval
+            $schedule.StartTime = $startTime
+            $schedule.StartDate = $startDate
+            $schedule.EndTime = $endTime
+            $schedule.EndDate = $endDate
+            $schedule.DaysOfWeek = $daysOfWeek
+            $schedule.Days = $days
+            $schedule.Months = $months
+            $schedule.RepeatEvery = $csvTask.'Repeat: Every'
+            $schedule.RepeatUntilTime = $csvTask.'Repeat: Until: Time'
+            $schedule.RepeatUntilDuration = $duration
+            $schedule.RepeatStopIfStillRunning = $csvTask.'Repeat: Stop If Still Running'
+            $schedule.StopAtEnd = $stopAtEnd
+            $schedule.Delay = $delay
+            $schedule.IdleTime = $idleTime
+            $schedule.EventChannelName = $eventChannelName
 
-            $schedule = New-Object -TypeName 'Carbon.TaskScheduler.ScheduleInfo' -ArgumentList $scheduleCtorArgs 
             $task.Schedules.Add( $schedule )
         }
         --$idx;

@@ -1,4 +1,9 @@
 {
-	"PSModules": [
-	]
-  }
+    "PSModules":  [
+                      {
+                          "name":  "Carbon.Core",
+                          "version":  "1.4.0",
+                          "repositorySourceLocation":  "https://www.powershellgallery.com/api/v2"
+                      }
+                  ]
+}
