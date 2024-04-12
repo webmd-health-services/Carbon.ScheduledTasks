@@ -105,8 +105,9 @@ BeforeAll {
         $task = Get-CScheduledTask -Name $task.Path -AsComObject
         $actualXml = [xml]$task.Xml
         # Different versions of Windows puts different values in these elements.
-        ($actualXml.OuterXml -replace '<(Uri|UserId)>[^<]*</(Uri|UserId)>','') |
-            Should -Be ($Xml.OuterXml -replace '<(Uri|UserId)>[^<]*</(Uri|UserId)>','')
+        $canonicalizeRegex = '<(Uri|UserId|LogonType|RunLevel)>[^<]*</(Uri|UserId|LogonType|RunLevel)>'
+        ($actualXml.OuterXml -replace $canonicalizeRegex,'') |
+            Should -Be ($Xml.OuterXml -replace $canonicalizeRegex,'')
 
         if( $Path )
         {

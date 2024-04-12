@@ -60,7 +60,8 @@ BeforeAll {
                 {
                     $displayName = $task.FullName
                 }
-                elseif ($task | Get-Member -Name 'RegistrationInfo')
+                elseif (($task | Get-Member -Name 'RegistrationInfo') -and `
+                        ($task.RegistrationInfo | Get-Member -Name 'URI'))
                 {
                     $displayName = $task.RegistrationInfo.URI
                 }
