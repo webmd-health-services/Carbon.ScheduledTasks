@@ -18,7 +18,7 @@
     RootModule = 'Carbon.ScheduledTasks.psm1'
 
     # Version number of this module.
-    ModuleVersion = '0.0.0'
+    ModuleVersion = '1.0.0'
 
     # ID used to uniquely identify this module
     GUID = '0db01e61-7ea9-494a-ac71-f545820ead34'
@@ -36,7 +36,7 @@
     Copyright = '(c) WebMD Health Services.'
 
     # Description of the functionality provided by this module
-    Description = ''
+    Description = 'Manages Windows scheduled tasks. Functions in this module get, install, uninstall, and test the existence of Windows scheduled tasks.'
 
     # Minimum version of the Windows PowerShell engine required by this module
     PowerShellVersion = '5.1'
@@ -76,6 +76,10 @@
 
     # Functions to export from this module. Only list public function here.
     FunctionsToExport = @(
+        'Get-CScheduledTask',
+        'Install-CScheduledTask',
+        'Test-CScheduledTask',
+        'Uninstall-CScheduledTask'
     )
 
     # Cmdlets to export from this module. By default, you get a script module, so there are no cmdlets.

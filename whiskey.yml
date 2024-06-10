@@ -4,11 +4,17 @@ Build:
     ExceptDuring: Clean
     ScriptBlock: prism install | Format-Table -Auto
 
+- PowerShell:
+    ExceptDuring: Clean
+    ScriptBlock: prism install | Format-Table -Auto
+    WorkingDirectory: Carbon.ScheduledTasks
+
 - Version:
     Path: Carbon.ScheduledTasks\Carbon.ScheduledTasks.psd1
     Prerelease:
     - main: ""
     - "*": rc1
+    IncrementPrereleaseVersion: true
 
 # Update the AppVeyor build/version number.
 - Exec:

@@ -1,13 +1,16 @@
-# Overview
 
-The "Carbon.ScheduledTasks" module...
+# Carbon.ScheduledTasks README
 
-# System Requirements
+## Overview
 
-* Windows PowerShell 5.1 and .NET 4.6.1+
-* PowerShell Core 6+
+The "Carbon.ScheduledTasks" module manages Windows scheduled tasks.
 
-# Installing
+## System Requirements
+
+* Windows PowerShell 5.1 and .NET 4.6.2+
+* PowerShell 6+
+
+## Installing
 
 To install globally:
 
@@ -23,4 +26,9 @@ Save-Module -Name 'Carbon.ScheduledTasks' -Path '.'
 Import-Module -Name '.\Carbon.ScheduledTasks'
 ```
 
-# Commands
+## Commands
+
+* `Get-CScheduledTask` for getting scheduled tasks.
+* `Install-CScheduledTask` for installing a scheduled task.
+* `Test-CScheduledTask` for checking if a scheduled task exists or not.
+* `Uninstall-CScheduledTask` for uninstalling a scheduled task.
