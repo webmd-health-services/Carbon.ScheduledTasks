@@ -491,7 +491,7 @@ function Install-CScheduledTask
     elseif ($Principal)
     {
         [void]$parameters.Add( '/RU' )
-        [void]$parameters.Add( (Resolve-CIdentityName -Name $Principal) )
+        [void]$parameters.Add( (Resolve-CPrincipalName -Name $Principal) )
     }
 
     function ConvertTo-SchtasksCalendarNameList

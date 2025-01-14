@@ -13,9 +13,9 @@ BeforeAll {
     Import-Module -Name (Join-Path -Path $psModulesPath -ChildPath 'Carbon' -Resolve) `
                   -Function @('Install-CUser') `
                   -Verbose:$false
-    $privateModulesPath = Join-Path -Path $PSScriptRoot -ChildPath '..\Carbon.ScheduledTasks\Modules' -Resolve
+    $privateModulesPath = Join-Path -Path $PSScriptRoot -ChildPath '..\Carbon.ScheduledTasks\M' -Resolve
     Import-Module -Name (Join-Path -Path $privateModulesPath -ChildPath 'Carbon.Accounts' -Resolve) `
-                  -Function @('Resolve-CIdentityName') `
+                  -Function @('Resolve-CPrincipalName') `
                   -Verbose:$false
 
     $script:taskXmlPathWithPrincipal = Join-Path -Path $PSScriptRoot -ChildPath 'ScheduledTasks\task_with_principal.xml'
@@ -89,7 +89,7 @@ BeforeAll {
             {
                 $RunsAsBuiltInAccount = 'System'
             }
-            $expectedUserId = Resolve-CIdentityName -Name $RunsAsBuiltInAccount
+            $expectedUserId = Resolve-CPrincipalName -Name $RunsAsBuiltInAccount
             $task.Definition.Principal.UserId | Should -Be ($expectedUserId | Split-Path -Leaf)
         }
 

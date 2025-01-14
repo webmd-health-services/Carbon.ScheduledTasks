@@ -1,7 +1,13 @@
 
 # Carbon.ScheduledTasks Changelog
 
+## 1.0.1
+
+Updating private, nested dependencies so that all dependencies are using PureInvoke 1.0.2.
+
 ## 1.0.0
+
+> Released 11 Jun 2024
 
 ### Migration Instructions
 
