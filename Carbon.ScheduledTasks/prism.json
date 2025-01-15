@@ -2,7 +2,7 @@
   "PSModules": [
     {
       "Name": "Carbon.Accounts",
-      "Version": "1.*"
+      "Version": "2.*"
     },
     {
       "Name": "Carbon.Core",
@@ -14,5 +14,5 @@
     }
   ],
 
-  "PSModulesDirectoryName": "Modules"
+  "PSModulesDirectoryName": "M"
 }

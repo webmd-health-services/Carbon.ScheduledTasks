@@ -22,12 +22,12 @@ Set-StrictMode -Version 'Latest'
 # module in development has its functions in the Functions directory.
 $script:moduleRoot = $PSScriptRoot
 
-$psModulesRoot = Join-Path -Path $script:moduleRoot -ChildPath 'Modules' -Resolve
+$psModulesRoot = Join-Path -Path $script:moduleRoot -ChildPath 'M' -Resolve
 Import-Module -Name (Join-Path -Path $psModulesRoot -ChildPath 'Carbon.Core' -Resolve) `
               -Function @('Add-CTypeData') `
               -Verbose:$false
 Import-Module -Name (Join-Path -Path $psModulesRoot -ChildPath 'Carbon.Accounts' -Resolve) `
-              -Function @('Resolve-CIdentityName') `
+              -Function @('Resolve-CPrincipalName') `
               -Verbose:$false
 Import-Module -Name (Join-Path -Path $psModulesRoot -ChildPath 'Carbon.Security' -Resolve) `
               -Function @('Grant-CPrivilege') `

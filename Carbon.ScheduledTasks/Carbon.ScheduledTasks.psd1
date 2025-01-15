@@ -18,7 +18,7 @@
     RootModule = 'Carbon.ScheduledTasks.psm1'
 
     # Version number of this module.
-    ModuleVersion = '1.0.0'
+    ModuleVersion = '1.0.1'
 
     # ID used to uniquely identify this module
     GUID = '0db01e61-7ea9-494a-ac71-f545820ead34'
