@@ -91,7 +91,7 @@ BeforeAll {
                 $RunsAsBuiltInAccount = 'System'
             }
             $expectedUserId = Resolve-CPrincipalName -Name $RunsAsBuiltInAccount
-            $task.Definition.Principal.UserId | Should -Be ($expectedUserId | Split-Path -Leaf)
+            Resolve-CPrincipalName -Name $task.Definition.Principal.UserId | Should -Be $expectedUserId
         }
 
         if( $Path )
@@ -543,7 +543,7 @@ BeforeAll {
 
         if ($RunsAs)
         {
-            $task.RunAsUser | Should -Be $RunsAS
+            Resolve-CPrincipalName -Name $task.RunAsUser | Should -Be (Resolve-CPrincipalName -Name $RunsAs)
         }
     }
 }
