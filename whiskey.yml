@@ -1,14 +1,5 @@
 
 Build:
-- PowerShell:
-    ExceptDuring: Clean
-    ScriptBlock: prism install | Format-Table -Auto
-
-- PowerShell:
-    ExceptDuring: Clean
-    ScriptBlock: prism install | Format-Table -Auto
-    WorkingDirectory: Carbon.ScheduledTasks
-
 - Version:
     Path: Carbon.ScheduledTasks\Carbon.ScheduledTasks.psd1
     Prerelease:
@@ -16,31 +7,32 @@ Build:
     - "*": rc1
     IncrementPrereleaseVersion: true
 
+- PowerShell: |
+    prism install | Format-Table -Auto
+    prism install -Path .\Carbon.ScheduledTasks | Format-Table -Auto
+  .ExceptDuring: Clean
+
 # Update the AppVeyor build/version number.
-- Exec:
-      OnlyBy: BuildServer
-      Path: appveyor
-      Argument: [ UpdateBuild, -Version, "$(WHISKEY_SEMVER2)+$(WHISKEY_BUILD_NUMBER)" ]
+- Exec: appveyor UpdateBuild -Version "$(WHISKEY_SEMVER2)+$(WHISKEY_BUILD_NUMBER)"
+  .OnlyBy: BuildServer
 
 # Dot-sourcing files is expensive. Move all functions into .psm1 file to improve import speed. Do this before testing
 # to ensure the module still works.
 - MergeFile:
-    OnlyBy: BuildServer
-    # Builds run twice on some serves. Only run this step if the module hasn't been merged yet.
-    IfExists: Carbon.ScheduledTasks\Functions\*.ps1
+    .OnlyBy: BuildServer
+    # Builds run twice on some servers. Only run this step if the module hasn't been merged yet.
+    .IfExists: Carbon.ScheduledTasks\Functions\*.ps1
     Path:
     - Carbon.ScheduledTasks\Functions\*.ps1
     DestinationPath: Carbon.ScheduledTasks\Carbon.ScheduledTasks.psm1
     DeleteSourceFiles: true
     TextSeparator: "$(NewLine)$(NewLine)"
 
-- PowerShell:
-    ExceptDuring: Clean
-    Path: init.ps1
+- PowerShell: .\init.ps1
+  .ExceptDuring: Clean
 
-- PowerShell:
-    OnlyDuring: Clean
-    Path: reset.ps1
+- PowerShell: .\reset.ps1
+  .OnlyDuring: Clean
 
 - CopyFile:
     Path:
@@ -58,10 +50,8 @@ Build:
     - "*.pdb"
     - "*.orig"
 
-- Exec:
-    OnlyBy: BuildServer
-    Path: appveyor
-    Argument: [ 'PushArtifact', '.output/Carbon.ScheduledTasks-$(WHISKEY_SEMVER2).zip', '-DeploymentName', 'GitHub' ]
+- Exec: appveyor 'PushArtifact' '$(WHISKEY_OUTPUT_DIRECTORY)/Carbon.ScheduledTasks-$(WHISKEY_SEMVER2).zip' -DeploymentName 'GitHub'
+  .OnlyBy: BuildServer
 
 - Pester:
     Configuration:
@@ -79,12 +69,5 @@ Build:
 - PublishPowerShellModule:
     Path: Carbon.ScheduledTasks
 
-- Exec:
-    OnlyBy: BuildServer
-    Path: appveyor
-    Argument: [
-        'PushArtifact',
-        '.output/Carbon.ScheduledTasks.$(WHISKEY_SEMVER2_NO_BUILD_METADATA).nupkg',
-        '-DeploymentName',
-        'PowerShellGallery'
-    ]
+- Exec: appveyor PushArtifact '$(WHISKEY_OUTPUT_DIRECTORY)/Carbon.ScheduledTasks.$(WHISKEY_SEMVER2_NO_BUILD_METADATA).nupkg' -DeploymentName 'PowerShellGallery'
+  .OnlyBy: BuildServer
