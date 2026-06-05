@@ -1,6 +1,7 @@
 
 using module ..\Carbon.ScheduledTasks;
 
+#Requires -RunAsAdministrator
 #Requires -Version 5.1
 Set-StrictMode -Version 'Latest'
 
