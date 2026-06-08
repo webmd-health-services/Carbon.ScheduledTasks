@@ -1,7 +1,14 @@
 
 # Carbon.ScheduledTasks Changelog
 
+## 1.1.0
+
+* Fixed: installing a scheduled task using a gMSA writes a warning.
+* `Install-CScheduledTask` now writes schtask.exe output to the information stream instead of the verbose stream.
+
 ## 1.0.1
+
+> Released 25 Feb 2025
 
 Updating private, nested dependencies so that all dependencies are using PureInvoke 1.0.2.
 

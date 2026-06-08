@@ -480,12 +480,15 @@ function Install-CScheduledTask
 
     $parameters = New-Object 'Collections.ArrayList'
 
-    if( $TaskCredential )
+    if ($TaskCredential)
     {
         [void]$parameters.Add( '/RU' )
         [void]$parameters.Add( $TaskCredential.UserName )
-        [void]$parameters.Add( '/RP' )
-        [void]$parameters.Add( $TaskCredential.GetNetworkCredential().Password )
+        if (-not $TaskCredential.UserName.EndsWith('$'))
+        {
+            [void]$parameters.Add( '/RP' )
+            [void]$parameters.Add( $TaskCredential.GetNetworkCredential().Password )
+        }
         Grant-CPrivilege -Identity $TaskCredential.UserName -Privilege 'SeBatchLogonRight'
     }
     elseif ($Principal)
@@ -708,9 +711,9 @@ function Install-CScheduledTask
             $paramLogString = $paramLogString -replace ([Text.RegularExpressions.Regex]::Escape($TaskCredential.GetNetworkCredential().Password)),'********'
         }
         Write-Verbose ('/TN {0} {1}' -f $Name,$paramLogString)
-        # Warnings get written by schtasks to the error stream. Fortunately, errors and warnings
-        # are prefixed with ERRROR and WARNING, so we can combine output/error streams and parse
-        # it later. We just have to make sure we remove any errors added to the $Error variable.
+        # Warnings get written by schtasks to the error stream. Fortunately, errors and warnings are prefixed with
+        # ERRROR and WARNING, so we can combine output/error streams and parse it later. We just have to make sure we
+        # remove any errors added to the $Error variable.
         $preErrorCount = $Global:Error.Count
         $output = '' | schtasks /create /TN $Name $parameters 2>&1
         $postErrorCount = $Global:Error.Count
@@ -730,19 +733,32 @@ function Install-CScheduledTask
             $createFailed = $true
         }
 
-        $output | ForEach-Object {
-            if( $_ -match '\bERROR\b' )
+        foreach ($line in $output)
+        {
+            if ($line -is [Management.Automation.ErrorRecord])
             {
-                Write-Error $_
+                if (-not $line.Exception -or $line.Exception -isnot [Management.Automation.RemoteException])
+                {
+                    Write-Error -ErrorRecord $line
+                    continue
+                }
+
+                $line = $line.Exception.Message
             }
-            elseif( $_ -match '\bWARNING\b' )
+
+            if ($line -match '\bERROR\b')
             {
-                Write-Warning ($_ -replace '^WARNING: ','')
+                Write-Error ($line -replace '^ERROR: ', '')
+                continue
             }
-            else
+
+            if ($line -match '\bWARNING\b')
             {
-                Write-Verbose $_
+                Write-Warning ($line -replace '^WARNING: ', '')
+                continue
             }
+
+            Write-Information $line
         }
 
         if( -not $createFailed )
